@@ -4,3 +4,6 @@ project_id = "rihmastovalta"
 # The game issues its own per-player bearer credentials. The gateway must not
 # interpret these credentials as Supabase Auth JWTs. All DB access is server-side.
 verify_jwt = false
+
+[functions.game-v2]
+verify_jwt = false

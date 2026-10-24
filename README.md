@@ -1,31 +1,49 @@
-# Rihmastovalta
+# Rihmastovalta 2 — hyvän veljen huonot aikeet
 
 **Pelaa:** https://rihmastovalta.pennyfive.workers.dev/
 
-Julkaistu 24.10.2026. Frontti on Cloudflaren staattisissa tiedostoissa ja pelipalvelin Supabasen `rihmastovalta`-projektissa (`egnxfxjshpjedbdlxzmv`, eu-north-1). Tarkistukset ja julkaisutiedot: [RELEASE.md](RELEASE.md).
+Suomenkielinen, mobiiliin suunniteltu kortti- ja valtapeli **2–6 oikealle pelaajalle**. Luo oma kabinetti, jaa liittymiskoodi ystäville ja aloita. Ei botteja tai yksinpeliä. Julkaistu 24.10.2026.
 
-Suomen politiikkaa ja sienisatoa yhdistävä asynkroninen social deduction -peli 3–10 pelaajalle. Yksi yhteinen huone, suomenkielinen mobiilikäyttöliittymä ja asennettava PWA.
+Tämä versio vaihtaa aiemman retkikunta- ja äänestyspelin kokonaan toiseen pelisilmukkaan. Samanaikaiset teot, aluehallinta, resurssitalous, toimintokortit ja henkilökohtaiset tavoitteet ovat pelin ydin.
+
+## Pelaaminen
+
+Kuusi kierrosta. Jokaisella on kolme tekoa per kierros. Pelaajat toimivat haluamassaan järjestyksessä ja voivat käyttää tekojaan samaan aikaan. Jokaisen yksittäisen toimenpiteen hyväksyntää ei äänestetä. Kun kaikki ovat käyttäneet tekonsa tai painaneet Olen valmis, yöjuonet ratkeavat ja seuraava kierros alkaa.
+
+Teko voi olla:
+
+- Kortin pelaaminen: 12 erilaista taktiikkaa, mm. kampanjointi, skandaali, sabotaasi, suojautuminen, tietovuoto ja sosialistinen vallankumous. Kortilla voi olla kolikko- tai itiöhinta.
+- Paikan vahvistaminen: 2 kolikolla 2 vaikutusvaltaa. Viidestä paikasta suurimman vaikutusvallan haltija saa hallinnan. Tasapeli jättää paikan ilman hallitsijaa.
+- Rahankeruu (3 kolikkoa), sienestys (2 itiötä), kortin hankinta avoimesta tarjonnasta (1 kolikko) tai lahjoitus yhteiseen kriisiin (1–3 kolikkoa).
+- Salainen yöjuoni: soluttautuminen, tihutyö tai nimetön mesenaatti. Yksi juoni per pelaaja ja kierros. Muut näkevät valmistelun, sisältö ja kohde selviävät yön aikana.
+
+Viisi paikkaa tuottavat seuraavan kierroksen alussa mainetta, rahaa tai itiöitä. Uusi tapahtuma muuttaa kierroksen olosuhteita. Yhteinen kriisi vaatii 2 kolikkoa pelaajaa kohti; onnistuminen antaa kaikille 1 maineen ja lahjoittajille vielä 1. Epäonnistuminen vie kaikilta 1 maineen ja 1 kolikon.
+
+Kolmas onnistunut likainen hyökkäys aiheuttaa 2 maineen sakon. Koskemattomuus torjuu yhden hyökkäyksen. Kolikoita ja itiöitä voi varastoida enintään 15, vaikutusvaltaa 8 per pelaaja ja paikka, kortteja 6. Kierroksen alussa saat 2 kolikkoa ja enintään 2 uutta korttia. Avoin tarjonta sisältää kolme eri korttia; vallankumouskortti esiintyy enintään kerran koko pelissä.
+
+Lopputulos: **maine + 2 pistettä per hallittu paikka + salaisen tavoitteen bonus**. Tasapisteissä voitto jaetaan. Kuusi tavoitetta painottavat varallisuutta, itiöitä, hallintaa, likaisia hyökkäyksiä, lahjoituksia tai laajaa vaikutusverkostoa. Oma bonus näkyy Juonet-välilehdellä. Muiden tavoitteet paljastuvat lopussa tai tietovuodossa.
+
+Puolueet ovat oikeita suomalaisia puolueita, mutta toimivat julkisena pelihahmon taustana. Ne eivät määrää liittolaisia tai salaista tavoitetta. Peli on fiktiivistä satiiria eikä puolueiden tuottama tai hyväksymä.
+
+## Moninpeli ja mobiili
+
+Jokaisella huoneella on oma kuusimerkkinen koodi ja kutsulinkki. Ensimmäinen liittyjä on isäntä. Pelaajan satunnainen selainavain säilyy paikallisesti ja toimii samassa huoneessa uudelleenlatauksen jälkeen. Pelaaminen tarvitsee verkon. PWA:n käyttöliittymä avautuu myös offline-välimuistista.
+
+Vuoroilla ei ole automaattista aikarajaa. Isäntä voi kierroksen alusta kuluneiden 90 sekunnin jälkeen ohittaa poissaolevat ja päättää kierroksen. Vain isäntä voi käynnistää uuden pelin lopputuloksen jälkeen. Ei isännän siirtoa, kadonneen selainavaimen palautusta, vahvaa identiteettiä tai roskapostisuojausta.
 
 ## Arkkitehtuuri
 
-- **Cloudflare Workers Static Assets:** pelkkä `public/`-käyttöliittymä ja PWA. Ei pelipalvelinta, Durable Objectia tai tietokantasidoksia.
-- **Supabase Edge Function `game`:** pelisäännöt ja palvelimella suodatetut pelaajakohtaiset näkymät.
-- **Supabase PostgreSQL:** yksi huone `rihma_private.room`-taulussa. Atominen revision tarkistus estää samanaikaisten komentojen ylikirjoittumisen. Epäonnistunut tallennus ei julkaise muutosta.
+- **Cloudflare Workers Static Assets:** vain `public/`, ei pelipalvelinta tai tietokantasidontoja.
+- **Supabase Edge Function `game-v2`:** `src/v2/game.js`, `api.js` ja `store.js`. Supabase-projekti `rihmastovalta`, ref `egnxfxjshpjedbdlxzmv`, eu-north-1.
+- **PostgreSQL:** `rihma_v2.rooms`, huonekohtainen revision compare-and-swap. SQL-RPC:t `rihma_v2_read_room(room_key)` ja `rihma_v2_save_room(room_key, expected_revision, next_state)` on sallittu vain service_rolelle. Taulu on yksityisessä skeemassa ja RLS käytössä.
+- Fronttiin menee vain julkinen funktion URL. Supabasen palvelinavain pysyy Edge Functionissa. Gatewayn JWT-tarkistus on pois käytöstä, koska peli tunnistaa pelaajat omilla satunnaisilla bearer-avaimillaan.
+- Palvelin palauttaa vain pyytäjän käden, tavoitteen, juonen ja tiedustelutiedot. Vastustajien kädet, juonien sisältö, tokenit ja korttipakka eivät tule julkiseen näkymään. Tavoitteet ja bonukset julkaistaan pelin lopussa; korttikädet pysyvät silloinkin yksityisinä.
 
-Pelaajien selainavaimet, salaiset roolit ja satokortit eivät ole suoraan luettavissa tietokannan julkisella API:lla. Taulu on yksityisessä skeemassa RLS käytössä. Vain `service_role` saa kutsua tallennuksen RPC-funktioita. Palvelinavain tulee Edge Functionin valmiista `SUPABASE_SERVICE_ROLE_KEY`-ympäristömuuttujasta; sitä ei siirretä fronttiin. Edge Function käyttää pelin omia satunnaisia bearer-avaimia, joten Supabasen JWT-tarkistus on sille pois käytöstä. Julkinen pelaajatunniste on eri asia kuin selainavain.
+Aiempi `game`-funktio, `rihma_private.room` ja vanhat lähdemoduulit on jätetty talteen. Niitä ei käytetä uudessa käyttöliittymässä. Uudistus ei ylikirjoita aiempaa huonetta tai sen pelaajien tietoja.
 
-## Mekaniikat
+## Kehitys
 
-- **Puoluepolitiikka:** SDP, kokoomus, perussuomalaiset, keskusta, vihreät, vasemmistoliitto, RKP, kristillisdemokraatit ja Liike Nyt. Puolue valitaan liittyessä tai jaetaan automaattisesti. Sitä voi vaihtaa aulassa. Tarvitaan vähintään kaksi puoluetta. Puolue ja salainen rooli ovat riippumattomia.
-- **Koalitiot:** vaihtuva puheenjohtaja ehdottaa retkikuntaa, jossa on vähintään kahta puoluetta. Hyväksyminen vaatii kaikkien pelaajien enemmistön sekä sisäisen enemmistön vähintään kahdessa puolueessa. Tasapeli hylkää. Äänet julkaistaan yhdessä.
-- **Salainen sato:** valitut antavat tuki- tai myrkkykortin. Vain myrkyttäjät voivat myrkyttää. Yksikin myrkky kaataa uudistuksen. Kolme onnistunutta uudistusta voittaa metsän puolustajille, kolme myrkytettyä retkeä myrkyttäjille. Viisi peräkkäistä hylkäystä antaa myrkyttäjille voiton. Myrkyttäjiä on 3–4 pelaajalla 1, 5–6 pelaajalla 2, 7–9 pelaajalla 3 ja 10 pelaajalla 4.
-- **Rihmastotalous:** kaikilla on 2 salaista itiötä; 3–4 pelaajan pienpelin myrkyttäjä aloittaa neljällä. Retken tukeminen tuottaa yhden (enintään 4). Myrkyttäminen maksaa 2. Myrkyttäjien on myös autettava.
-- **Näytetarkastus:** ehdotusvaiheessa 2 itiöllä voi julkaista yhden edellisen retken jäsenen antaman kortin. Yksi tarkastus kierroksessa. Tukikortti ei todista roolia.
-- **Sosialistinen vallankumous:** kolmas voittoreitti avautuu ehdotusvaiheessa, kun kolme ehdotusta on hylätty peräkkäin tai vähintään kaksi retkeä on päättynyt ja ainakin yksi on myrkytetty. Julkinen, peruuttamaton liittyminen maksaa 2 itiötä. Vähintään ⅔ pelaajista ja kolme puoluetta (tai molemmat, jos vain kaksi on edustettuna) siirtää sienisadon yhteisomistukseen. Vain liittyneet voittavat, alkuperäisestä roolista riippumatta.
-
-## Paikallinen kehitys
-
-Node.js 22+ (testattu 24), npm.
+Node.js 22+ ja npm.
 
 ```sh
 npm ci
@@ -34,46 +52,19 @@ npm run check
 npm run dev
 ```
 
-Paikallinen kehityspalvelin tarjoilee käyttöliittymän ja saman API-käsittelijän. Ilman ympäristömuuttujia pelitila tallennetaan `.local/room.json`-tiedostoon. Tämä tila **ei testaa Supabase-pilviyhteyttä**. Supabaseen yhdistäminen paikallisesti: aseta `.env`-tiedostoon `SUPABASE_URL` ja `SUPABASE_SERVICE_ROLE_KEY` turvallisesti; älä lisää tiedostoa Gitiin. Sovella ensin tietokantamigraatio.
+Paikallinen API on `/api/v2`. Kehityspalvelin tallentaa huoneet erillisiin `.local/v2-<koodi>.json`-tiedostoihin. Override-testiin: `PORT=8793 RIHMA_DATA_DIR=/tmp/rihma-test npm run dev`. Julkinen `config.js` osoittaa tuotantoon; vaihda se paikallisen kehityksen ajaksi `window.RIHMA_API = '/api/v2';` tai ylikirjoita vastaus selaintestin reitityksellä. Älä commitoi paikallista URL:ia tuotantoon.
 
-`npm test` tarkistaa pelisäännöt, API:n samanaikaisuuden ja migraation käyttöoikeudet paikallisessa PGlite PostgreSQL -moottorissa. Se ei todista Supabase Edge -julkaisun toimintaa. Toiminnallinen testi: aloita erillinen tyhjä palvelin `PORT=8788 RIHMA_DATA_DIR=/tmp/rihma-smoke-fresh npm run dev`, sitten `SMOKE_URL=http://127.0.0.1:8788 npm run smoke`. Testi luo viisi pelaajaa, pelaa kokonaisen pelin ja toteuttaa vallankumouksen. Älä suorita sitä oikeassa pelihuoneessa.
+`npm test`: uuden pelin sääntö-, API- ja tietokantatestit. Mukana 90 toistettavaa kokonaista peliä 2, 4 ja 6 pelaajalla. `npm run test:legacy` tarkistaa vanhan version. Vanha `npm run smoke` on vain aiempaa `/api`-peliä varten.
 
-## Julkaisu: ensin Supabase
+## Julkaisu
 
-Käytä Supabase-pluginia, jos se on istunnon työkaluissa saatavilla. Valitse olemassa oleva projekti; älä luo maksullista projektia sokkona. Sovella `supabase/migrations/20261024000100_game.sql` migraationa ja julkaise `supabase/functions/game/index.ts` funktionimellä `game`, JWT-tarkistus pois käytöstä. Funktion riippuvuudet ovat `src/api.js`, `src/game.js` ja `src/store.js`.
-
-Vaihtoehtoisesti Supabase CLI asennettuna ja omalle tilille kirjautuneena:
+Sovella migraatiot Supabase-projektiin. Julkaise `supabase/functions/game-v2/index.ts` ja kaikki `src/v2/`-riippuvuudet. JWT-gatewaytarkistus pois, pelin oma tunnistus jää päälle.
 
 ```sh
-supabase login
-supabase link --project-ref <project-ref>
-npm run deploy:backend
-```
-
-CLI käyttää `supabase/config.toml`-tiedostoa. Älä koskaan tallenna henkilökohtaista access tokenia lähdekoodiin. `db push` soveltaa tietokantamigraation valittuun projektiin; tarkista projektiviite ennen komentoa.
-
-Tarkista `GET https://<project-ref>.supabase.co/functions/v1/game/state`: vastauksen tulee olla HTTP 200 ja pelitilaa sisältävä JSON, ei 401 tai tietokantavirhe. Varmista myös, että julkisella anon/publishable-avaimella ei voi lukea yksityistä pelitilaa. Tee pilvipelin toiminnallinen testi vain erillisessä testiprojektissa, ei käynnissä olevan pelin huoneessa.
-
-## Julkaisu: sitten Cloudflare-frontti
-
-Kun Supabase-funktio toimii:
-
-```sh
-npm run configure -- https://<project-ref>.supabase.co/functions/v1/game
-npx wrangler login
+npm run configure -- https://<project-ref>.supabase.co/functions/v1/game-v2
 npm run deploy:frontend
 ```
 
-Frontin julkaisu estetään, jos backendin osoite on vielä paikallinen `/api`. Fronttiin tallennetaan vain julkinen funktion URL, ei Supabasen palvelinavainta tai henkilökohtaisia access tokeneita. CI:ssä Cloudflare-tunnistautuminen voidaan antaa suojattuina `CLOUDFLARE_API_TOKEN`- ja `CLOUDFLARE_ACCOUNT_ID`-muuttujina. `wrangler.jsonc` julkaisee vain staattiset tiedostot.
+Pluginilla voi suorittaa migraatiot, julkaista funktion ja siirtää Cloudflare-assetsit ilman paikallisia hallinta-avaimia. `check-deploy.mjs` vaatii `game-v2`-osoitteen. Älä julkaise palvelinavaimia tai asset-upload-JWT:tä lähdekoodiin.
 
-Tarkista julkaistulla sivulla liittyminen, kahden selaimen tilapäivitykset ja PWA:n asennus HTTPS:n yli. Selainavaimen pitää säilyä sivun uudelleenlatauksessa. Supabase- ja Cloudflare-julkaisut ovat eri toimenpiteitä; paikalliset testit eivät tarkoita kumpaakaan julkaistuksi.
-
-## Rajat
-
-Ensimmäinen liittyjä on isäntä. Aloitus lukitsee huoneen. Äänestykset odottavat kaikkia ilman aikarajaa. Ei pelaajien poistamista, kadonneen selainavaimen palautusta tai push-ilmoituksia. Sama ryhmä voi avata uuden pelin lopputuloksen jälkeen. Käyttöliittymä päivittyy kolmen sekunnin välein. Offline-tilassa käyttöliittymä avautuu, pelaaminen vaatii yhteyden. Ei vahvaa henkilöllisyyden varmennusta tai roskapostin estoa: ensimmäinen versio on luotetulle kaveriporukalle. Pelitasapaino tarvitsee ihmisten pelitestejä.
-
-Oikeat puolueet ovat satiirin kontekstia. Peli ei ole puolueiden tuottama tai hyväksymä. Salaiset roolit ovat fiktiivisiä ja arvotaan puolueesta riippumatta.
-
-## Pienpeli 3–4 pelaajalle
-
-Vähintään 3 pelaajaa ja 2 puoluetta. Yksi myrkyttäjä aloittaa neljällä itiöllä, muut kahdella. Näin myös yksin toimiva myrkyttäjä voi saavuttaa kolme myrkytettyä retkeä tukemalla välillä yhteistä satoa. Kolmella pelaajalla retkikunta on aina 2; neljällä koot ovat 2, 2, 3, 2, 3. Muut voittoehdot ja koalitiosäännöt pysyvät samoina. Suuremman ryhmän peliin ei tule sääntömuutoksia. Pienpelin tasapainoa ei ole testattu ihmisillä.
+Tarkistusten ja julkaisun tiedot: [RELEASE.md](RELEASE.md).

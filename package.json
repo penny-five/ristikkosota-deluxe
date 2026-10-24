@@ -1,16 +1,17 @@
 {
   "name": "rihmastovalta",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "node --env-file-if-exists=.env scripts/dev.mjs",
-    "test": "node test/game.test.js && node test/api.test.js && node test/database.test.js",
-    "check": "node --check src/api.js && node --check src/game.js && node --check src/store.js && node --check public/app.js && node --check scripts/dev.mjs",
+    "test": "node --test test/v2/*.test.js",
+    "check": "node --check src/v2/game.js && node --check src/v2/api.js && node --check src/v2/store.js && node --check public/app.js && node --check scripts/dev.mjs",
     "smoke": "node scripts/smoke.mjs",
     "configure": "node scripts/configure.mjs",
-    "deploy:backend": "supabase db push && supabase functions deploy game",
-    "deploy:frontend": "node scripts/check-deploy.mjs && wrangler deploy"
+    "deploy:backend": "supabase db push && supabase functions deploy game-v2",
+    "deploy:frontend": "node scripts/check-deploy.mjs && wrangler deploy",
+    "test:legacy": "node test/game.test.js && node test/api.test.js && node test/database.test.js"
   },
   "devDependencies": {
     "wrangler": "4.152.0",

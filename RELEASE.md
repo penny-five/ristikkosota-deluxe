@@ -1,30 +1,28 @@
-# Julkaisu 24.10.2026
+# Rihmastovalta 2 — julkaisu 24.10.2026
 
-Peliosoite: https://rihmastovalta.pennyfive.workers.dev/
+https://rihmastovalta.pennyfive.workers.dev/
 
-## Julkaistut osat
+Täysi pelipivot: 2–6 oikeaa pelaajaa, huonekoodit, samanaikaiset kolme tekoa kuuden kierroksen ajan, viiden paikan aluehallinta, 12 korttityyppiä, kolme yöjuonta, kuusi salaista henkilökohtaista tavoitetta, kuusi kierrostapahtumaa ja yhteiset rahoitettavat kriisit. Ei botteja tai yksinpeliä.
 
-- Cloudflare Workers Static Assets: `rihmastovalta`, tili `penny-five`, workers.dev-alidomain `pennyfive`. Ei palvelinmoduuleja tai tietokantasidontoja.
-- Supabase: `rihmastovalta`, `egnxfxjshpjedbdlxzmv`, Tukholma (`eu-north-1`). Pelipalvelin `https://egnxfxjshpjedbdlxzmv.supabase.co/functions/v1/game`.
-- Edge Function `game`, JWT-gatewaytarkistus pois, omat satunnaiset selainavaimet. Palvelinavain pysyy Supabasessa.
-- Tietokannan yksityinen huone, RLS ja vain service_rolelle sallitut RPC:t. Migraatiotiedostot vastaavat pluginin luomaa pilvihistoriaa.
+## Julkaisut
 
-## Todennetut tarkistukset
+Cloudflare-tilin `penny-five` Worker `rihmastovalta`: vain staattiset assetsit. Supabase-projektin `rihmastovalta` (`egnxfxjshpjedbdlxzmv`) Edge Function `game-v2`, gateway verify_jwt=false; pelaajien omat bearer-avaimet tarkistetaan palvelimella. Uusi yksityinen `rihma_v2.rooms` säilyttää huonekohtaiset revisionumerot ja JSON-pelitilat. Migraatio `20261024091406_multiplayer_pivot.sql`.
 
-16 sääntö-, API- ja PostgreSQL-testiä sekä syntaksitarkistukset. Chromiumin viisi erillistä mobiilikontekstia: liittyminen, puolueen valinta/vaihto, roolikortti, retkikunnat, äänestys, sato, voitto, uusi peli ja chat. Uudelleenlataus säilyttää jäsenyyden. Leveydet 320–768 px, ei sivuttaisvieritystä, lomakekontrollit vähintään 44 px.
+Vanha pelitila ja `game`-funktio säilytetty. Uusi frontti ei käytä niitä.
 
-Pilven erillinen testihuone: viisi istuntoa, samanaikaiset äänet, kolme onnistunutta retkeä, salattujen tietojen suodatus, reset ja sosialistinen vallankumous. Testiskeema ja data poistettu. `game-check` on käytöstä poistettu testifunktio (JWT päällä, handler palauttaa 410).
+## Tarkistukset
 
-Julkinen mobiilisivu: HTTP 200, tyhjä aula, HTTPS, oikeat fontit, service worker aktiivinen ja 11 käyttöliittymätiedostoa offline-välimuistissa. Kelpaamaton selainavain ei voi tehdä toimintoja; julkisella Supabase-avaimella yksityiset RPC:t palauttavat 401.
+- 14 uuden version sääntö-, API- ja PostgreSQL-testiä. 90 kokonaista peliä eri siemenillä ja 2, 4 tai 6 pelaajalla: ekonomia, käsien koko, vaikutusvaltakatot, kierrosten eteneminen, pisteytys, tietojen yksityisyys.
+- Kaikki 12 korttia, kilpi, epäily, vallankumous, juonet, kriisi, huoneiden eristys, samanaikaiset kirjoitukset ja vanhentuneen revision hylkäys tarkistettu. Julkiset tietokantaroolit eivät saa lukea tai kirjoittaa huoneita/RPC:itä.
+- Kaksi erillistä Chromiumin kosketuskontekstia: luonti, kutsulinkki, liittyminen, aloitus, yksityinen tavoiteopastus, kartta, juoni, lahjoitus, yön ratkaisu, kortin kohdistaminen, chat, uudelleenlataus, kuuden kierroksen lopputulos ja reset. Kaikki neljä pelivälilehteä 320, 360, 390, 430, 768 ja 1280 px leveyksillä ilman sivuttaisvieritystä.
+- Oikea Supabase Edge + PostgreSQL: erillisen testihuoneen kaksi istuntoa, huoneiden eristys, väärän bearer-avaimen hylkäys, käsien/tavoitteiden/juonien suodatus, paikan valtaus, salainen juoni, kriisi, toimintokortti, kuusi kierrosta, pisteet ja uusi peli. Testihuoneet poistettu rajatulla SQL-kyselyllä niiden omien koodien ja testinimien perusteella.
+- Julkaistu Cloudflare-sivu tarkistettu 390 px mobiiliselaimessa: oikea huoneen luonti, liittyminen, tavoiteopastus, kaksi samanaikaista Edge-toimintoa ja kartan valtaus käyttöliittymästä. Vain oma käsi/tavoite näkyy. Julkisen Supabase-avaimen RPC-luku estyi, SW aktiivinen, 11 tiedostoa välimuistissa, fontit latautuivat, ei sivuttaisvieritystä. Myös tämä testihuone poistettu.
+- Syntaksit ja frontendin julkaisuosoitteen tarkistus läpi. Paikalliset fontit, SVG-kuvakkeet, pienempiä näyttöjä palveleva alavalikko, kosketusdialogit, iOS-kenttien 16 px kirjasinkoko ja reduced-motion.
 
-Supabasen tietoturvatarkistus ilmoitti vain informatiivisesti, ettei yksityisellä RLS-taululla ole julkisia policyjä. Tämä on tarkoituksellista: vain palvelin-RPC:t käsittelevät tilaa. Suorituskykytarkistuksessa ei huomautuksia.
+Supabasen tietoturvatarkistuksessa vain INFO: yksityisillä RLS-tauluilla ei ole julkisia policyjä. Tämä on tarkoituksellista; pääsy on rajattu palvelin-RPC:ihin.
 
-## Käyttö ja rajat
+## Rajat
 
-Avaa sama osoite 3–10 pelaajan selaimissa. Ensimmäinen liittyjä on isäntä. Vähintään kaksi puoluetta tarvitaan. Pelaaminen edellyttää verkkoa; offline-välimuisti näyttää käyttöliittymän. Fyysisellä puhelimella tehtyä pelitestiä tai käyttöjärjestelmän PWA-asennusdialogia ei ole todennettu. Ei vahvaa identiteettiä, isännän siirtoa, hukatun selainavaimen palautusta tai roskapostisuojausta.
+Mobiilitesti käyttää selainemulaatiota; fyysisellä puhelimella tehtyä pelisessiota tai PWA:n asennusdialogia ei ole todennettu. Viihdyttävyyttä ja tasapainoa ei voi todistaa teknisillä testeillä: ne tarvitsevat oikeiden ihmisten uuden pelikokeen. Ei vahvaa identiteettiä, isännän siirtoa tai selainavaimen palautusta. Kriisi ja juonet odottavat kierroksen loppua; isäntä voi ohittaa poissaolevat 90 sekunnin jälkeen.
 
-Käyttäjän pyytämä `passa-grisar`-projektin poisto jäi tekemättä, koska käytettävissä oleva Supabase-plugin ei tarjoa projektin poistamista. Projekti on yhä olemassa.
-
-## Pienpelipäivitys ja SVG-kuvakkeet
-
-Peli alkaa nyt kolmella pelaajalla. 3–4 pelaajan pienpelissä yksi myrkyttäjä aloittaa neljällä itiöllä; muut kahdella. Retkikunnat ovat kolmella aina 2 ja neljällä 2/2/3/2/3. Kolmen mobiiliselaimen kokonainen peli, puolueenvaihto, reload, chat ja kaikki aiemmat mobiilileveydet testattu. Testit varmistavat myös neljän pelaajan pelin ja molempien roolien voittomahdollisuuden pienpelin itiötaloudella. Varsinaisten isojen pelien säännöt säilyvät. Koristeelliset Unicode-kuvakkeet vaihdettu SVG:hen myös hero-otsikosta ja pelitoiminnoista.
+Aiempi käyttäjän pyytämä `passa-grisar`-projektin poisto on edelleen tekemättä: käytettävissä olevassa Supabase-pluginissa ei ole projektin poistotoimintoa.

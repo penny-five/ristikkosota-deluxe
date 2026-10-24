@@ -1,1 +1,1 @@
-window.RIHMA_API = "https://egnxfxjshpjedbdlxzmv.supabase.co/functions/v1/game";
+window.RIHMA_API = "https://egnxfxjshpjedbdlxzmv.supabase.co/functions/v1/game-v2";
