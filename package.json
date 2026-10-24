@@ -1,0 +1,19 @@
+{
+  "name": "rihmastovalta",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env scripts/dev.mjs",
+    "test": "node test/game.test.js && node test/api.test.js && node test/database.test.js",
+    "check": "node --check src/api.js && node --check src/game.js && node --check src/store.js && node --check public/app.js && node --check scripts/dev.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "configure": "node scripts/configure.mjs",
+    "deploy:backend": "supabase db push && supabase functions deploy game",
+    "deploy:frontend": "node scripts/check-deploy.mjs && wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "4.152.0",
+    "@electric-sql/pglite": "^0.3.14"
+  }
+}
