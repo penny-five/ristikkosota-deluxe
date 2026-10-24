@@ -2,7 +2,7 @@ const parties=['SDP','Kokoomus','Perussuomalaiset','Keskusta','Vihreät','Vasemm
 let token=localStorage.getItem('rihma-token')||'',state,selected=new Set(),busy=false;
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function api(path,data){const r=await fetch((window.RIHMA_API||'/api').replace(/\/$/,'')+'/'+path,{method:data?'POST':'GET',headers:{Authorization:'Bearer '+token,...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined});const v=await r.json();if(!r.ok)throw Error(v.error);return v;}
-async function refresh(){try{const g=await api('state');const changed=JSON.stringify(g)!==JSON.stringify(state);state=g;$('#connection').textContent='● Yhteys huoneeseen';if(changed)render();}catch(e){$('#connection').textContent='○ Ei yhteyttä — yritetään uudelleen';}}
+async function refresh(){try{const g=await api('state');const changed=JSON.stringify(g)!==JSON.stringify(state);state=g;$('#connection-text').textContent='Yhteys huoneeseen';$('#connection').dataset.offline='false';if(changed)render();}catch(e){$('#connection-text').textContent='Ei yhteyttä — yritetään uudelleen';$('#connection').dataset.offline='true';}}
 const sigil=i=>`<svg aria-hidden="true"><use href="#sigil-${i%6}"/></svg>`;
 const name=id=>esc(state.players.find(p=>p.id===id)?.name);
 function render(){const g=state,me=g.players.find(p=>p.id===g.me),host=g.players[0]?.id===g.me,leader=g.players[g.leader],role=me?.role;

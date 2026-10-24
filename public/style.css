@@ -9,3 +9,5 @@
 #app:not([data-phase="lobby"])>.seats{grid-column:span 12}#app:not([data-phase="lobby"]) .players{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}@media(max-width:650px){#app:not([data-phase="lobby"]) .players{grid-template-columns:1fr 1fr}}
 
 @media(max-width:650px){body:not(.in-session):not(.has-seat) .intro{min-height:555px}body:not(.in-session):not(.has-seat) .hero-content{padding-bottom:190px}h1{font-size:clamp(44px,13.5vw,62px);letter-spacing:-2.5px}.empty-seat{opacity:.65}button,input,select{min-height:48px}}
+
+.rules-link{display:inline-flex;align-items:center;gap:8px}.nav-icon{width:15px;height:15px;color:var(--gold);stroke-width:1.6}.live{display:inline-flex;align-items:center;gap:8px}.connection-icon{width:16px;height:16px;flex-shrink:0;stroke-width:1.6}.live[data-offline="true"]{color:#d99a7b}@media(max-width:650px){.rules-link{display:none}.live{gap:6px;max-width:125px}.connection-icon{width:14px;height:14px}}
