@@ -2,6 +2,8 @@
 
 Peli: https://rihmastovalta.pennyfive.workers.dev/
 
+Uusin päivitys: 3–10 pelaajaa. 3–4 pelaajalla yksi myrkyttäjä, jolla 4 alku-itiötä; muilla 2. Kolmella retkikunnat 2/2/2/2/2, neljällä 2/2/3/2/3. Edge Function game v2. 16 testiä läpi, kolmen mobiiliselaimen peli testattu. Kaikki koristeelliset Unicode-kuvakkeet korvattu SVG:llä. SW-välimuisti rihma-v5.
+
 Jatkotyössä lue ensin README.md ja RELEASE.md. Alla oleva aiempi siirto-ohje kuvaa lähtötilannetta; sen avoimet julkaisuaskeleet on nyt tehty.
 
 - Supabase-projekti `rihmastovalta`, ref `egnxfxjshpjedbdlxzmv`, eu-north-1, penny-five-organisaatio. Luotu käyttäjän pyynnöstä, get_cost ilmoitti hinnaksi 0/kk.

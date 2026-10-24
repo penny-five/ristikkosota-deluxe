@@ -9,7 +9,35 @@ test('three successful reforms end game, reset preserves login',()=>{const g=gam
 test('five rejected proposals give poison victory; duplicate voting rejected',()=>{const g=game();for(let i=0;i<5;i++){nominate(g);act(g,'0',{type:'vote',yes:false});assert.throws(()=>act(g,'0',{type:'vote',yes:true}));g.players.slice(1).forEach(p=>act(g,p.id,{type:'vote',yes:false}));}assert.equal(g.winner,'poison');});
 test('only selected members submit, defenders cannot poison; three poison rounds win',()=>{const g=game();g.players.forEach((p,i)=>p.role=i<2?'poison':'forest');for(let i=0;i<4;i++){const poison=g.players.filter(p=>p.role==='poison')[i===1?1:0],forest=g.players.find(p=>p.role==='forest');const team=[poison.id,...g.players.filter(p=>p.id!==poison.id).sort((a,b)=>(a.role==='poison'?-1:1)-(b.role==='poison'?-1:1)).slice(0,size(g)-1).map(p=>p.id)];act(g,g.players[g.leader].id,{type:'nominate',team});approve(g);assert.throws(()=>act(g,forest.id,{type:'mission',poison:true}));assert.throws(()=>act(g,g.players.find(p=>!team.includes(p.id)).id,{type:'mission',poison:false}));for(const id of team)act(g,id,{type:'mission',poison:i!==2&&id===poison.id});}assert.equal(g.winner,'poison');});
 test('guards reject invalid teams, unauthorized start, and invalid votes',()=>{const g=game();assert.throws(()=>act(g,'1',{type:'nominate',team:['0','1']}));assert.throws(()=>act(g,'0',{type:'nominate',team:['0','0']}));assert.throws(()=>act(g,'unknown',{type:'chat',text:'hi'}));nominate(g);assert.throws(()=>act(g,'0',{type:'vote',yes:'false'}));});
-test('all supported player counts have valid teams and roles',()=>{for(let n=5;n<=10;n++){const g=game(n);assert.equal(g.players.filter(p=>p.role==='poison').length,n<=6?2:n<=9?3:4);assert.ok(size(g)<=n);}});
+test('all supported player counts have valid teams and roles',()=>{for(let n=3;n<=10;n++){const g=game(n);assert.equal(g.players.filter(p=>p.role==='poison').length,n<=4?1:n<=6?2:n<=9?3:4);assert.ok(size(g)<=n);}});
 test('spores constrain sabotage and audit reveals one previous action only',()=>{const g=game();const poison=g.players.find(p=>p.role==='poison');act(g,'0',{type:'nominate',team:[poison.id,...g.players.filter(p=>p.id!==poison.id).slice(0,1).map(p=>p.id)]});approve(g);for(const id of g.team)act(g,id,{type:'mission',poison:id===poison.id});assert.equal(poison.spores,0);assert.throws(()=>act(g,poison.id,{type:'audit',target:poison.id}));const investigator=g.players.find(p=>p.id!==poison.id);const before=investigator.spores;act(g,investigator.id,{type:'audit',target:poison.id});assert.equal(investigator.spores,before-2);assert.match(g.log.at(-1),/MYRKKYÄ/);assert.throws(()=>act(g,'0',{type:'audit',target:poison.id}));assert.equal(view(g,investigator.id).cards,undefined);assert.equal(view(g,investigator.id).players.find(p=>p.id===poison.id).spores,undefined);});
 test('party majority can reject a numerical majority; mono-party teams forbidden',()=>{const g=game();g.players.forEach((p,i)=>p.party=parties[i<3?0:i===3?1:2]);assert.throws(()=>act(g,'0',{type:'nominate',team:['0','1']}));act(g,'0',{type:'nominate',team:['0','3']});g.players.forEach((p,i)=>act(g,p.id,{type:'vote',yes:i<3}));assert.equal(g.phase,'nominate');assert.equal(g.rejects,1);});
 test('revolution requires crisis, resources, two-thirds and cross-party support',()=>{const g=game();assert.throws(()=>act(g,'0',{type:'revolution'}));g.rejects=3;for(let i=0;i<3;i++)act(g,String(i),{type:'revolution'});assert.equal(g.phase,'nominate');assert.throws(()=>act(g,'0',{type:'revolution'}));act(g,'3',{type:'revolution'});assert.equal(g.winner,'revolution');assert.equal(g.phase,'ended');assert.equal(g.players[0].spores,0);assert.equal(g.revolution.length,4);});
+
+test('small games complete with one poisoner, private roles and bounded teams',()=>{
+ for(const n of [3,4]){
+  const g=game(n);assert.equal(g.players.filter(p=>p.role==='poison').length,1);
+  assert.ok(view(g,'').players.every(p=>!p.role));
+  for(const p of g.players)assert.equal(view(g,p.id).players.filter(x=>x.role).length,1);
+  const expected=n===3?[2,2,2,2,2]:[2,2,3,2,3];
+  for(let round=0;round<5;round++){const copy=structuredClone(g);copy.round=round;assert.equal(size(copy),expected[round]);assert.ok(size(copy)<n);}
+  for(let round=0;round<3;round++){nominate(g);approve(g);for(const id of g.team)act(g,id,{type:'mission',poison:false});}
+  assert.equal(g.phase,'ended');assert.equal(g.winner,'forest');
+  act(g,'0',{type:'reset'});assert.equal(g.players.length,n);assert.equal(g.phase,'lobby');
+ }
+});
+test('small game poisoner can win by spending and replenishing spores',()=>{
+ for(const n of [3,4]){
+  const g=game(n);const poison=g.players.find(p=>p.role==='poison');
+  for(let round=0;round<5;round++){
+   const team=[poison.id,...g.players.filter(p=>p.id!==poison.id).slice(0,size(g)-1).map(p=>p.id)];
+   act(g,g.players[g.leader].id,{type:'nominate',team});approve(g);
+   for(const id of team)act(g,id,{type:'mission',poison:id===poison.id&&round%2===0});
+  }
+  assert.equal(g.winner,'poison');assert.equal(poison.spores,0);
+ }
+});
+test('fewer than three players cannot start, and small games still require two parties',()=>{
+ for(const n of [1,2]){const g=fresh();g.players=Array.from({length:n},(_,i)=>({id:String(i),party:parties[i]}));assert.throws(()=>act(g,'0',{type:'start'}),/vähintään 3/);assert.equal(g.phase,'lobby');}
+ const g=fresh();g.players=Array.from({length:3},(_,i)=>({id:String(i),party:'SDP'}));assert.throws(()=>act(g,'0',{type:'start'}),/kahden puolueen/);
+});

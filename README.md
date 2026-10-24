@@ -4,7 +4,7 @@
 
 Julkaistu 24.10.2026. Frontti on Cloudflaren staattisissa tiedostoissa ja pelipalvelin Supabasen `rihmastovalta`-projektissa (`egnxfxjshpjedbdlxzmv`, eu-north-1). Tarkistukset ja julkaisutiedot: [RELEASE.md](RELEASE.md).
 
-Suomen politiikkaa ja sienisatoa yhdistävä asynkroninen social deduction -peli 5–10 pelaajalle. Yksi yhteinen huone, suomenkielinen mobiilikäyttöliittymä ja asennettava PWA.
+Suomen politiikkaa ja sienisatoa yhdistävä asynkroninen social deduction -peli 3–10 pelaajalle. Yksi yhteinen huone, suomenkielinen mobiilikäyttöliittymä ja asennettava PWA.
 
 ## Arkkitehtuuri
 
@@ -18,8 +18,8 @@ Pelaajien selainavaimet, salaiset roolit ja satokortit eivät ole suoraan luetta
 
 - **Puoluepolitiikka:** SDP, kokoomus, perussuomalaiset, keskusta, vihreät, vasemmistoliitto, RKP, kristillisdemokraatit ja Liike Nyt. Puolue valitaan liittyessä tai jaetaan automaattisesti. Sitä voi vaihtaa aulassa. Tarvitaan vähintään kaksi puoluetta. Puolue ja salainen rooli ovat riippumattomia.
 - **Koalitiot:** vaihtuva puheenjohtaja ehdottaa retkikuntaa, jossa on vähintään kahta puoluetta. Hyväksyminen vaatii kaikkien pelaajien enemmistön sekä sisäisen enemmistön vähintään kahdessa puolueessa. Tasapeli hylkää. Äänet julkaistaan yhdessä.
-- **Salainen sato:** valitut antavat tuki- tai myrkkykortin. Vain myrkyttäjät voivat myrkyttää. Yksikin myrkky kaataa uudistuksen. Kolme onnistunutta uudistusta voittaa metsän puolustajille, kolme myrkytettyä retkeä myrkyttäjille. Viisi peräkkäistä hylkäystä antaa myrkyttäjille voiton. Myrkyttäjiä on 5–6 pelaajalla 2, 7–9 pelaajalla 3 ja 10 pelaajalla 4.
-- **Rihmastotalous:** kaikilla on 2 salaista itiötä. Retken tukeminen tuottaa yhden (enintään 4). Myrkyttäminen maksaa 2. Myrkyttäjien on myös autettava.
+- **Salainen sato:** valitut antavat tuki- tai myrkkykortin. Vain myrkyttäjät voivat myrkyttää. Yksikin myrkky kaataa uudistuksen. Kolme onnistunutta uudistusta voittaa metsän puolustajille, kolme myrkytettyä retkeä myrkyttäjille. Viisi peräkkäistä hylkäystä antaa myrkyttäjille voiton. Myrkyttäjiä on 3–4 pelaajalla 1, 5–6 pelaajalla 2, 7–9 pelaajalla 3 ja 10 pelaajalla 4.
+- **Rihmastotalous:** kaikilla on 2 salaista itiötä; 3–4 pelaajan pienpelin myrkyttäjä aloittaa neljällä. Retken tukeminen tuottaa yhden (enintään 4). Myrkyttäminen maksaa 2. Myrkyttäjien on myös autettava.
 - **Näytetarkastus:** ehdotusvaiheessa 2 itiöllä voi julkaista yhden edellisen retken jäsenen antaman kortin. Yksi tarkastus kierroksessa. Tukikortti ei todista roolia.
 - **Sosialistinen vallankumous:** kolmas voittoreitti avautuu ehdotusvaiheessa, kun kolme ehdotusta on hylätty peräkkäin tai vähintään kaksi retkeä on päättynyt ja ainakin yksi on myrkytetty. Julkinen, peruuttamaton liittyminen maksaa 2 itiötä. Vähintään ⅔ pelaajista ja kolme puoluetta (tai molemmat, jos vain kaksi on edustettuna) siirtää sienisadon yhteisomistukseen. Vain liittyneet voittavat, alkuperäisestä roolista riippumatta.
 
@@ -73,3 +73,7 @@ Tarkista julkaistulla sivulla liittyminen, kahden selaimen tilapäivitykset ja P
 Ensimmäinen liittyjä on isäntä. Aloitus lukitsee huoneen. Äänestykset odottavat kaikkia ilman aikarajaa. Ei pelaajien poistamista, kadonneen selainavaimen palautusta tai push-ilmoituksia. Sama ryhmä voi avata uuden pelin lopputuloksen jälkeen. Käyttöliittymä päivittyy kolmen sekunnin välein. Offline-tilassa käyttöliittymä avautuu, pelaaminen vaatii yhteyden. Ei vahvaa henkilöllisyyden varmennusta tai roskapostin estoa: ensimmäinen versio on luotetulle kaveriporukalle. Pelitasapaino tarvitsee ihmisten pelitestejä.
 
 Oikeat puolueet ovat satiirin kontekstia. Peli ei ole puolueiden tuottama tai hyväksymä. Salaiset roolit ovat fiktiivisiä ja arvotaan puolueesta riippumatta.
+
+## Pienpeli 3–4 pelaajalle
+
+Vähintään 3 pelaajaa ja 2 puoluetta. Yksi myrkyttäjä aloittaa neljällä itiöllä, muut kahdella. Näin myös yksin toimiva myrkyttäjä voi saavuttaa kolme myrkytettyä retkeä tukemalla välillä yhteistä satoa. Kolmella pelaajalla retkikunta on aina 2; neljällä koot ovat 2, 2, 3, 2, 3. Muut voittoehdot ja koalitiosäännöt pysyvät samoina. Suuremman ryhmän peliin ei tule sääntömuutoksia. Pienpelin tasapainoa ei ole testattu ihmisillä.

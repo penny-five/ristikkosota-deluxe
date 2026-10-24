@@ -1,6 +1,6 @@
 export const parties=['SDP','Kokoomus','Perussuomalaiset','Keskusta','Vihreät','Vasemmistoliitto','RKP','Kristillisdemokraatit','Liike Nyt'];
 export const fresh = () => ({phase:'lobby',players:[],round:0,leader:0,team:[],votes:{},missions:{},results:[],cards:[],auditedRound:-1,revolution:[],rejects:0,log:[],chat:[]});
-export function size(g) { return (g.players.length < 7 ? [2,3,2,3,3] : [2,3,3,4,4])[g.round]; }
+export function size(g) { const n=g.players.length;return (n<=3?[2,2,2,2,2]:n===4?[2,2,3,2,3]:n<7?[2,3,2,3,3]:[2,3,3,4,4])[g.round]; }
 function need(ok,msg) { if(!ok) throw new Error(msg); }
 export function act(g,id,a,random=Math.random) {
  const p=g.players.find(p=>p.id===id); need(p,'Liity ensin peliin.');
@@ -8,9 +8,9 @@ export function act(g,id,a,random=Math.random) {
  if(a.type==='party') {need(g.phase==='lobby' && parties.includes(a.party),'Puoluetta voi vaihtaa vain ennen istuntoa.');p.party=a.party;return;}
  if(a.type==='reset') { need(g.players[0].id===id && g.phase==='ended','Vain isäntä voi avata uuden pelin pelin päätyttyä.'); Object.assign(g,{...fresh(),players:g.players.map(({id,name,token,party})=>({id,name,token,party}))}); return; }
  if(a.type==='start') {
-  need(g.phase==='lobby' && g.players[0].id===id,'Vain isäntä aloittaa pelin.'); need(g.players.length>=5,'Tarvitaan vähintään 5 pelaajaa.');need(new Set(g.players.map(p=>p.party)).size>=2,'Tarvitaan vähintään kahden puolueen pelaajia.');
+  need(g.phase==='lobby' && g.players[0].id===id,'Vain isäntä aloittaa pelin.'); need(g.players.length>=3,'Tarvitaan vähintään 3 pelaajaa.');need(new Set(g.players.map(p=>p.party)).size>=2,'Tarvitaan vähintään kahden puolueen pelaajia.');
   const shuffled=[...g.players]; for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
-  shuffled.forEach((p,i)=>{p.role=i<Math.floor((g.players.length-1)/3)+1?'poison':'forest';p.spores=2;});
+  shuffled.forEach((p,i)=>{p.role=i<(g.players.length<=4?1:Math.floor((g.players.length-1)/3)+1)?'poison':'forest';p.spores=g.players.length<=4&&p.role==='poison'?4:2;});
   g.phase='nominate';g.log.push('Sienivaliokunnan istunto alkoi.'); return;
  }
  if(a.type==='revolution') {
